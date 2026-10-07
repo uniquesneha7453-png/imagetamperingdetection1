@@ -1,4 +1,13 @@
+<<<<<<< HEAD
 streamlit
 tensorflow
 keras
 pathlib
+=======
+echo streamlit > requirements.txt
+echo tensorflow >> requirements.txt
+echo keras >> requirements.txt
+echo numpy >> requirements.txt
+echo pandas >> requirements.txt
+echo opencv-python >> requirements.txt
+>>>>>>> ef1b20b (Add requirements.txt for Streamlit Cloud)
