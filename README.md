@@ -1,149 +1,162 @@
-# Image Tampering Detection (Hackathon Project)
+# Image Tampering Detection: Real vs Edited
 
-An end-to-end Machine Learning pipeline to detect digital image forgery and manipulation using **Error Level Analysis (ELA)** and a lightweight **Deep Learning CNN Classifier**.
+### Detecting Image Manipulation Using Error Level Analysis and Machine Learning
+
+> **PIXELS → EVIDENCE → VERDICT**
+
+## Overview
+
+Image tampering involves modifying an image using techniques such as
+copy-paste, splicing, or retouching.
+
+This project aims to develop a system that detects whether an input image is
+likely to be **Real** or **Tampered**.
+
+The system uses **Error Level Analysis (ELA)** to identify regions that may
+show inconsistent compression patterns and Machine Learning for classification.
 
 ---
 
-## 🔍 Pipeline Architecture
+## Problem Statement
+
+Manipulated images can reduce trust in digital content and create challenges
+in areas such as:
+
+- Digital evidence
+- Cybersecurity
+- Misinformation detection
+- Online media verification
+
+The goal of this project is to develop an image-forensics system that can
+assist in identifying potentially manipulated images.
+
+---
+
+## Proposed Solution
+
+The system follows this general pipeline:
 
 ```text
-Original Image
-     │
-     ▼
-[ ELA Preprocessing ] (JPEG recompression difference via Pillow)
-     │
-     ▼
-[ Resize & Format ]   (224x224 RGB image, 3 channels)
-     │
-     ▼
-[ Normalization ]     (Float32 conversion, pixel values scaled to [0.0, 1.0])
-     │
-     ▼
-[ ML Model ]          (Lightweight MobileNetV2-based CNN classifier)
-     │
-     ▼
-[ Binary Decision ]   (0 = REAL, 1 = TAMPERED + Confidence Score)
+Input Image
+     ↓
+Preprocessing
+     ↓
+Error Level Analysis (ELA)
+     ↓
+ELA Heatmap
+     ↓
+Feature Extraction
+     ↓
+Machine Learning Classifier
+     ↓
+REAL / TAMPERED
 ```
 
 ---
 
-## 📁 Project Structure
+## Error Level Analysis (ELA)
+
+Error Level Analysis compares an image with a recompressed version of the
+same image.
+
+The basic process involves:
+
+1. Taking the input image
+2. Recompressing it as a JPEG
+3. Comparing the original and recompressed images
+4. Calculating pixel-level differences
+5. Generating an ELA heatmap
+
+Unusual compression differences may indicate possible image manipulation.
+
+**Note:** ELA is an indicator and not absolute proof that an image has been
+tampered with.
+
+---
+
+## Machine Learning
+
+The ELA representation is used to obtain features from the image.
+
+These features are then used by a Machine Learning classifier to predict
+whether the image is:
+
+- **REAL**
+- **TAMPERED**
+
+---
+
+## Technologies Used
+
+- Python
+- OpenCV
+- Pillow
+- scikit-learn
+- Google Colab
+
+---
+
+## Evaluation
+
+The system can be evaluated using:
+
+- Accuracy
+- Confusion Matrix
+
+Final results will be added after the model is trained and evaluated.
+
+---
+
+## Demo
+
+The intended demonstration follows these steps:
 
 ```text
-Image-Tampering-Hackothon/
-│
-├── dataset/                    # Future dataset folder (created when data is available)
-│   ├── real/                   # Authentic, unedited images (Class 0)
-│   └── tampered/               # Manipulated/forged images (Class 1)
-│
-├── input_images/               # Folder for test/demo images
-├── outputs/                    # Saved models and exported evaluation artifacts
-│   └── tampering_model.keras   # Generated upon training
-│
-├── src/
-│   ├── ela.py                  # Error Level Analysis generation using Pillow
-│   ├── preprocessing.py        # 224x224 RGB resizing, float32 conversion & [0, 1] normalization
-│   ├── model.py                # Reusable lightweight MobileNetV2 Keras model
-│   ├── train.py                # Dataset loading, train/val split & model training routine
-│   └── predict.py              # Reusable inference function & CLI tool
-│
-├── tests/                      # Unit and integration test scripts
-└── README.md                   # Project documentation and guide
+Upload Image
+     ↓
+Image Processing
+     ↓
+ELA Generation
+     ↓
+ELA Heatmap
+     ↓
+ML Prediction
+     ↓
+REAL / TAMPERED
 ```
 
 ---
 
-## ⚙️ Environment & Dependencies
+## Limitations
 
-- **Python**: 3.13+
-- **TensorFlow**: 2.20.0
-- **Keras**: 3.13.2
-- **Pillow**: 12.0.0
-- **NumPy**: Included with TensorFlow / Keras
-
-> **Note:** The pipeline is designed to work completely **offline** on CPU without requiring OpenCV (`cv2`) or PyTorch (`torch`).
+- ELA depends on JPEG compression.
+- Resizing and screenshots can affect ELA patterns.
+- ELA alone cannot prove that an image is fake.
+- Performance depends on the quality and diversity of the dataset.
 
 ---
 
-## 🚀 How to Use
+## Future Scope
 
-### 1. Dataset Setup (Future Step)
-
-When you receive or download your dataset (e.g., CASIA 2.0 or custom tampering dataset), organize your images as follows:
-
-```text
-dataset/
-├── real/
-│   ├── photo_001.jpg
-│   └── photo_002.png
-└── tampered/
-    ├── fake_001.jpg
-    └── fake_002.png
-```
-
-Supported image formats: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.tif`, `.tiff`, `.webp`.
+- Larger and more diverse datasets
+- Advanced image-forensics techniques
+- Deep Learning-based detection
+- Support for newer image manipulation techniques
+- More robust testing across different image formats
 
 ---
 
-### 2. Training the Model
+## Cybersecurity Relevance
 
-Once images are placed in `dataset/`, train the model with a single command:
+Image forgery detection can support cybersecurity and digital forensics by
+helping identify potentially manipulated visual information.
 
-```powershell
-python src/train.py
-```
-
-- Loads images batch-by-batch using `keras.utils.PyDataset` to prevent high memory usage.
-- Computes ELA and normalizes each image to `(224, 224, 3)`.
-- Splits data into 80% training and 20% validation.
-- Automatically saves the best model checkpoint to `outputs/tampering_model.keras`.
-- Displays training loss, accuracy, precision, and recall metrics upon completion.
+This project combines image processing and Machine Learning to assist in
+evaluating the authenticity of digital images.
 
 ---
 
-### 3. Running Predictions (Inference)
+## Disclaimer
 
-#### Via Command Line:
-```powershell
-python src/predict.py path/to/sample_image.jpg
-```
-
-Output format:
-```text
-==================================================
-  TAMPERING DETECTION RESULT
-==================================================
-Image:      path/to/sample_image.jpg
-Prediction: TAMPERED
-Confidence: 94.20%
-==================================================
-```
-
-#### Integration for Teammates (UI / Backend API):
-Teammates can directly import and invoke `predict_tampering`:
-
-```python
-from src.predict import predict_tampering
-
-result = predict_tampering("path/to/image.jpg")
-print(result)
-# Returns:
-# {
-#     "label": "REAL" or "TAMPERED",
-#     "confidence": 0.942,
-#     "raw_probability": 0.942,
-#     "image_path": "..."
-# }
-```
-
-If the model has not been trained yet, it cleanly raises a descriptive `FileNotFoundError` explaining how to train it.
-
----
-
-### 4. Standalone ELA Extraction
-
-To inspect or visualize the ELA representation of any image:
-
-```powershell
-python src/ela.py input_images/test.jpg outputs/ela_preview.png
-```
+This project is an educational and research-oriented prototype. The prediction
+should not be treated as definitive proof of image authenticity.
