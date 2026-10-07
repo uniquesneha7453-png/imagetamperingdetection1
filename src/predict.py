@@ -96,7 +96,7 @@ def predict_tampering(image_path, model_path=DEFAULT_MODEL_PATH):
     try:
         with Image.open(img_path) as test_img:
             test_img.verify()
-    except (UnidentifiedImageError, OSError, Exception) as err:
+    except Exception as err:
         raise ValueError(f"Corrupt or unsupported image file '{img_path}': {err}")
 
     # 3. Load trained model (raises FileNotFoundError if model doesn't exist)
